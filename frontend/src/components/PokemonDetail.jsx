@@ -150,7 +150,7 @@ function MovesSection({ movesByVersion, types }) {
 export default function PokemonDetail({ pokemon: p, types, loading, onClose, onPokemonClick }) {
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-stone-200 rounded-full w-24" />
           <div className="h-48 bg-stone-100 rounded-3xl" />
@@ -233,7 +233,7 @@ export default function PokemonDetail({ pokemon: p, types, loading, onClose, onP
   if (p.is_baby) flags.push(<span key="b" className="bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded-full border border-blue-200/50">幼年</span>)
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 pb-16">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 pb-16">
       {/* Back */}
       <button
         onClick={onClose}
@@ -242,68 +242,115 @@ export default function PokemonDetail({ pokemon: p, types, loading, onClose, onP
         <span>←</span> 返回列表
       </button>
 
-      {/* Header card */}
+      {/* Header - Hero Section */}
       <div className="rounded-3xl border border-stone-200/70 bg-white/70 overflow-hidden mb-6">
         <div className="p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            <div className="w-44 h-44 flex items-center justify-center">
-              {p.sprite_artwork && <img src={p.sprite_artwork} className="w-full h-full object-contain drop-shadow-sm" alt={p.name_en} />}
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Left: Large Sprite */}
+            <div className="w-52 h-52 flex items-center justify-center flex-shrink-0">
+              {p.sprite_artwork && <img src={p.sprite_artwork} className="w-full h-full object-contain drop-shadow-md" alt={p.name_en} />}
             </div>
-            <div className="text-center sm:text-left flex-1">
+            
+            {/* Right: Info */}
+            <div className="text-center md:text-left flex-1">
               <div className="text-xs font-mono text-stone-400 mb-1">#{String(p.id).padStart(4, '0')}</div>
-              <h1 className="text-3xl font-medium tracking-tight text-stone-900">{p.name_zh || p.name_en}</h1>
+              <h1 className="text-4xl font-medium tracking-tight text-stone-900 mb-1">{p.name_zh || p.name_en}</h1>
               <div className="text-sm text-stone-400 mb-2">{p.name_en}</div>
               {(p.genus_zh || p.genus_en) && <div className="text-sm text-stone-500 mb-3">「{p.genus_zh || p.genus_en}」</div>}
-              <div className="flex gap-2 justify-center sm:justify-start mb-2">{typeBadges}</div>
-              {flags.length > 0 && <div className="flex gap-2 justify-center sm:justify-start flex-wrap mt-2">{flags}</div>}
-              <div className="flex gap-4 mt-3 text-xs text-stone-400 justify-center sm:justify-start">
-                <span>身高 {((p.height || 0) / 10).toFixed(1)}m</span>
-                <span>体重 {((p.weight || 0) / 10).toFixed(1)}kg</span>
-                <span>捕获率 {p.capture_rate ?? '—'}</span>
+              
+              <div className="flex gap-2 justify-center md:justify-start mb-3">{typeBadges}</div>
+              {flags.length > 0 && <div className="flex gap-2 justify-center md:justify-start flex-wrap mb-3">{flags}</div>}
+              
+              {/* Quick Stats */}
+              <div className="flex gap-6 text-xs text-stone-400 justify-center md:justify-start">
+                <div className="text-center">
+                  <div className="text-lg font-medium text-stone-700">{((p.height || 0) / 10).toFixed(1)}m</div>
+                  <div>身高</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-medium text-stone-700">{((p.weight || 0) / 10).toFixed(1)}kg</div>
+                  <div>体重</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-medium text-stone-700">{p.capture_rate ?? '—'}</div>
+                  <div>捕获率</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-medium text-stone-700">{totalStat}</div>
+                  <div>种族值</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Description */}
-        {(p.flavor_zh || p.flavor_en) && (
-          <div className="rounded-3xl border border-stone-200/70 bg-[#FFFCF7]/80 p-6 text-sm text-stone-600 italic leading-relaxed">
-            "{p.flavor_zh || p.flavor_en}"
-          </div>
-        )}
+      {/* Main Content - Two Column Layout on larger screens */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Core Info */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Description */}
+          {(p.flavor_zh || p.flavor_en) && (
+            <div className="rounded-3xl border border-stone-200/70 bg-[#FFFCF7]/80 p-6 text-sm text-stone-600 italic leading-relaxed">
+              "{p.flavor_zh || p.flavor_en}"
+            </div>
+          )}
 
-        {/* Stats */}
-        <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
-          <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-stone-500 mb-4">
-            种族值 <span className="normal-case tracking-normal text-stone-400">· 合计 {totalStat}</span>
-          </h3>
-          <div className="space-y-2.5">{statBars}</div>
+          {/* Stats */}
+          <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
+            <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-stone-500 mb-4">
+              种族值 <span className="normal-case tracking-normal text-stone-400">· 合计 {totalStat}</span>
+            </h3>
+            <div className="space-y-2.5">{statBars}</div>
+          </div>
+
+          {/* Evolution */}
+          {evoSection && (
+            <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
+              {evoSection}
+            </div>
+          )}
+
+          {/* Moves */}
+          {p.moves_by_version && Object.keys(p.moves_by_version).length > 0 && (
+            <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
+              <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-stone-500 mb-4">招式列表</h3>
+              <MovesSection movesByVersion={p.moves_by_version} types={types} />
+            </div>
+          )}
+
+          {/* Version Sprites Gallery */}
+          <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
+            <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-stone-500 mb-4">
+              历代精灵图
+            </h3>
+            <VersionSpriteGallery pokemonId={p.id} />
+          </div>
+
+          {/* Flavor Texts */}
+          <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
+            <FlavorTextSection pokemonId={p.id} />
+          </div>
         </div>
 
-        {/* Abilities */}
-        {abilities.length > 0 && (
-          <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
-            <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-stone-500 mb-3">特性</h3>
-            <div className="space-y-3">{abilities}</div>
-          </div>
-        )}
+        {/* Right Column - Sidebar */}
+        <div className="space-y-6">
+          {/* Anime Archive - Prominent Position */}
+          <AnimeArchiveSection pokemonId={p.id} />
 
-        {/* Evolution */}
-        {evoSection && (
-          <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
-            {evoSection}
-          </div>
-        )}
+          {/* Abilities */}
+          {abilities.length > 0 && (
+            <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
+              <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-stone-500 mb-3">特性</h3>
+              <div className="space-y-3">{abilities}</div>
+            </div>
+          )}
 
-        {/* Moves */}
-        {p.moves_by_version && Object.keys(p.moves_by_version).length > 0 && (
+          {/* Pokedex Numbers */}
           <div className="rounded-3xl border border-stone-200/70 bg-white/70 p-6">
-            <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-stone-500 mb-4">招式列表</h3>
-            <MovesSection movesByVersion={p.moves_by_version} types={types} />
+            <PokedexNumbersSection pokemonId={p.id} />
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

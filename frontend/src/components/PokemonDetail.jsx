@@ -112,10 +112,10 @@ function MovesSection({ movesByVersion, types }) {
           <button
             key={vg}
             onClick={() => setActiveVersion(vg)}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+            className={`px-3 py-1 rounded-full text-[12px] font-medium transition-colors duration-150 ${
               vg === currentVersion
                 ? 'bg-stone-900 text-stone-50'
-                : 'border border-stone-200/70 bg-white/60 text-stone-500 hover:bg-white hover:text-stone-700'
+                : 'text-stone-400 hover:text-stone-600 hover:bg-stone-100/50'
             }`}
           >
             {VERSION_NAMES[vg] || vg}
@@ -124,15 +124,15 @@ function MovesSection({ movesByVersion, types }) {
       </div>
 
       {availableMethods.length > 1 && (
-        <div className="flex gap-1.5 mb-4">
+        <div className="flex gap-1 mb-4">
           {availableMethods.map(method => (
             <button
               key={method}
               onClick={() => setActiveMethod(method)}
-              className={`px-2.5 py-0.5 rounded-full text-xs transition-colors ${
+              className={`px-2.5 py-0.5 rounded-full text-[11px] transition-colors duration-150 ${
                 method === currentMethod
                   ? 'bg-stone-800 text-stone-50'
-                  : 'border border-stone-200/70 bg-white/50 text-stone-400 hover:text-stone-600'
+                  : 'text-stone-400 hover:text-stone-600'
               }`}
             >
               {METHOD_NAMES[method] || method} ({versionMoves[method]?.length || 0})
@@ -209,7 +209,7 @@ export default function PokemonDetail({ pokemon: p, types, loading, onClose, onP
         <div key={e.species_id || i} className="flex items-center">
           {arrow}
           <div
-            className={`flex flex-col items-center ${isActive ? 'ring-1 ring-stone-400 rounded-2xl bg-stone-100 p-2' : 'p-2'} ${e.evo_pokemon_id ? 'cursor-pointer hover:bg-stone-50 rounded-2xl transition-colors' : ''}`}
+            className={`flex flex-col items-center ${isActive ? 'ring-1 ring-stone-300/60 rounded-2xl bg-stone-100/50 p-2' : 'p-2 rounded-2xl'} ${e.evo_pokemon_id ? 'cursor-pointer hover:bg-stone-100/40 transition-colors duration-150' : ''}`}
             onClick={() => e.evo_pokemon_id && onPokemonClick(e.evo_pokemon_id)}
           >
             {e.evo_sprite && <img src={e.evo_sprite} className="w-16 h-16 object-contain" alt="" />}
@@ -236,7 +236,7 @@ export default function PokemonDetail({ pokemon: p, types, loading, onClose, onP
       {/* Back */}
       <button
         onClick={onClose}
-        className="mb-6 flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 transition-colors"
+        className="mb-6 flex items-center gap-1 text-[13px] text-stone-400 hover:text-stone-600 transition-colors duration-150"
       >
         <span>←</span> 返回列表
       </button>

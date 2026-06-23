@@ -1,30 +1,30 @@
 export default function Header({ view, onHome, onTypes }) {
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF7F0]/80 backdrop-blur-md border-b border-stone-200/70">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={onHome}>
-          <div className="w-8 h-8 rounded-full bg-stone-900 flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full bg-[#FAF7F0]" />
+    <header className="sticky top-0 z-50 bg-[#FAF7F0]/90 backdrop-blur-sm border-b border-stone-200/50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 cursor-pointer select-none" onClick={onHome}>
+          <div className="w-7 h-7 rounded-full bg-stone-900 flex items-center justify-center">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#FAF7F0]" />
           </div>
-          <h1 className="text-lg font-medium tracking-tight text-stone-900">宝可梦图鉴</h1>
+          <span className="text-[15px] font-medium text-stone-800 tracking-tight">宝可梦图鉴</span>
         </div>
-        <nav className="flex gap-1.5">
+        <nav className="flex gap-1">
           <button
             onClick={onHome}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`px-3.5 py-1 rounded-full text-[13px] font-medium transition-colors duration-150 ${
               view === 'list'
                 ? 'bg-stone-900 text-stone-50'
-                : 'border border-stone-200/70 bg-white/60 text-stone-600 hover:bg-white'
+                : 'text-stone-500 hover:text-stone-700 hover:bg-stone-100/60'
             }`}
           >
             图鉴
           </button>
           <button
             onClick={onTypes}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`px-3.5 py-1 rounded-full text-[13px] font-medium transition-colors duration-150 ${
               view === 'types'
                 ? 'bg-stone-900 text-stone-50'
-                : 'border border-stone-200/70 bg-white/60 text-stone-600 hover:bg-white'
+                : 'text-stone-500 hover:text-stone-700 hover:bg-stone-100/60'
             }`}
           >
             属性克制

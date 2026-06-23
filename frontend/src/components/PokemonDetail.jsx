@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { VersionSpriteGallery, FlavorTextSection, PokedexNumbersSection, AnimeArchiveSection } from './VersionData'
 
 const STAT_COLORS = {
   hp: '#ef4444', attack: '#f59e0b', defense: '#eab308',

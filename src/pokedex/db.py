@@ -233,7 +233,7 @@ def get_pokemon_list(
         SELECT p.id, p.species_id, p.name_en, pn_zh.name AS name_zh,
                p.sprite_artwork, p.generation, p.is_legendary, p.is_mythical
         FROM pokemon p
-        LEFT JOIN pokemon_names pn_zh ON pn_zh.pokemon_id = p.id AND pn_zh.language = 'zh-Hans'
+        LEFT JOIN pokemon_names pn_zh ON pn_zh.pokemon_id = p.id AND pn_zh.language = 'zh-hans'
         {"LEFT JOIN pokemon_types pt ON pt.pokemon_id = p.id" if type_id else ""}
         WHERE {where}
         GROUP BY p.id
@@ -274,7 +274,7 @@ def get_pokemon_count(
     sql = f"""
         SELECT COUNT(DISTINCT p.id)
         FROM pokemon p
-        LEFT JOIN pokemon_names pn_zh ON pn_zh.pokemon_id = p.id AND pn_zh.language = 'zh-Hans'
+        LEFT JOIN pokemon_names pn_zh ON pn_zh.pokemon_id = p.id AND pn_zh.language = 'zh-hans'
         {"LEFT JOIN pokemon_types pt ON pt.pokemon_id = p.id" if type_id else ""}
         WHERE {where}
     """
@@ -298,7 +298,7 @@ def get_pokemon_detail(pokemon_id: int) -> Optional[dict]:
 
     # Chinese name
     zh = conn.execute(
-        "SELECT name FROM pokemon_names WHERE pokemon_id=? AND language='zh-Hans'",
+        "SELECT name FROM pokemon_names WHERE pokemon_id=? AND language='zh-hans'",
         (pokemon_id,),
     ).fetchone()
     p["name_zh"] = zh["name"] if zh else p["name_en"]

@@ -32,6 +32,18 @@ def _name_from_names(names: list, lang: str) -> Optional[str]:
     return None
 
 
+def _zh_name(names: list) -> Optional[str]:
+    """Extract Chinese (Simplified) name, trying both cases."""
+    # Try lowercase first (has correct Chinese names in PokeAPI)
+    for n in names:
+        if n["language"]["name"] == "zh-hans":
+            return n["name"]
+    for n in names:
+        if n["language"]["name"] == "zh-Hans":
+            return n["name"]
+    return None
+
+
 def _flavor_from_entries(entries: list, lang: str, version: str = None) -> Optional[str]:
     """Extract flavor text, preferring specific version."""
     candidates = []
@@ -109,7 +121,7 @@ class PokeAPIFetcher:
                 continue
 
             name_en = _name_from_names(data.get("names", []), "en") or data["name"]
-            name_zh = _name_from_names(data.get("names", []), "zh-Hans") or name_en
+            name_zh = _zh_name(data.get("names", [])) or name_en
 
             self.conn.execute(
                 "INSERT OR REPLACE INTO types (id, identifier, name_en, name_zh) VALUES (?,?,?,?)",
@@ -158,7 +170,7 @@ class PokeAPIFetcher:
                 continue
 
             name_en = _name_from_names(data.get("names", []), "en") or data["name"]
-            name_zh = _name_from_names(data.get("names", []), "zh-Hans") or name_en
+            name_zh = _zh_name(data.get("names", [])) or name_en
             eff_en, eff_zh = None, None
             for e in data.get("effect_entries", []):
                 if e["language"]["name"] == "en":
@@ -199,7 +211,7 @@ class PokeAPIFetcher:
                 continue
 
             name_en = _name_from_names(data.get("names", []), "en") or data["name"]
-            name_zh = _name_from_names(data.get("names", []), "zh-Hans") or name_en
+            name_zh = _zh_name(data.get("names", [])) or name_en
             type_id = None
             if data.get("type"):
                 type_id = int(data["type"]["url"].rstrip("/").split("/")[-1])
@@ -272,17 +284,17 @@ class PokeAPIFetcher:
 
             # Extract names
             name_en = _name_from_names(sp_data.get("names", []), "en") or sp_data["name"]
-            name_zh = _name_from_names(sp_data.get("names", []), "zh-Hans") or name_en
+            name_zh = _zh_name(sp_data.get("names", [])) or name_en
             genus_en = None
             genus_zh = None
             for g in sp_data.get("genera", []):
                 if g["language"]["name"] == "en":
                     genus_en = g["genus"]
-                if g["language"]["name"] == "zh-Hans":
+                if g["language"]["name"] in ("zh-hans", "zh-Hans"):
                     genus_zh = g["genus"]
 
             flavor_en = _flavor_from_entries(sp_data.get("flavor_text_entries", []), "en")
-            flavor_zh = _flavor_from_entries(sp_data.get("flavor_text_entries", []), "zh-Hans")
+            flavor_zh = _flavor_from_entries(sp_data.get("flavor_text_entries", []), "zh-hans")
 
             # Sprites
             sprites = poke_data.get("sprites", {})
@@ -337,7 +349,7 @@ class PokeAPIFetcher:
             )
             self.conn.execute(
                 "INSERT OR REPLACE INTO pokemon_names (pokemon_id, language, name) VALUES (?,?,?)",
-                (pokemon_id, "zh-Hans", name_zh),
+                (pokemon_id, "zh-hans", name_zh),
             )
             for n in sp_data.get("names", []):
                 self.conn.execute(
@@ -460,6 +472,8 @@ class PokeAPIFetcher:
         start = time.time()
         init_db()
         self.conn = get_conn()
+        # Disable foreign keys during bulk insert (re-enable at end)
+        self.conn.execute("PRAGMA foreign_keys=OFF")
 
         connector = aiohttp.TCPConnector(limit=CONCURRENCY)
         self.session = aiohttp.ClientSession(connector=connector)
@@ -490,6 +504,7 @@ class PokeAPIFetcher:
 
         finally:
             await self.session.close()
+            self.conn.execute("PRAGMA foreign_keys=ON")
             self.conn.close()
 
         elapsed = time.time() - start

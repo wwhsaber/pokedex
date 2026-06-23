@@ -1,25 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>宝可梦图鉴 / Pokédex</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            pokedex: { 50: '#fef3f2', 100: '#fee4e2', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c', 800: '#991b1b', 900: '#7f1d1d' }
-          }
-        }
-      }
-    }
-  </script>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gray-50 min-h-screen">
-  <div id="app"></div>
-  <script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='white' stroke='%23dc2626' stroke-width='8'/><circle cx='50' cy='50' r='20' fill='%23dc2626'/><line x1='5' y1='50' x2='95' y2='50' stroke='%23dc2626' stroke-width='6'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宝可梦图鉴 / Pokédex</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

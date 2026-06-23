@@ -256,15 +256,15 @@ def stats_summary():
 
 # ── Serve frontend static files ────────────────────────────────────────
 
-FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
 
-app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+if FRONTEND_DIST.exists():
+    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="static-assets")
 
-
-@app.get("/{full_path:path}")
-async def serve_frontend(full_path: str):
-    """Serve frontend files, fallback to index.html for SPA."""
-    file_path = FRONTEND_DIR / full_path
-    if file_path.exists() and file_path.is_file():
-        return FileResponse(file_path)
-    return FileResponse(FRONTEND_DIR / "index.html")
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """Serve frontend files, fallback to index.html for SPA."""
+        file_path = FRONTEND_DIST / full_path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(FRONTEND_DIST / "index.html")

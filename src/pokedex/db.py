@@ -161,7 +161,7 @@ def init_db():
     );
 
     CREATE TABLE IF NOT EXISTS evolution_chains (
-        chain_id    INTEGER PRIMARY KEY,
+        chain_id    INTEGER NOT NULL,
         pokemon_id  INTEGER NOT NULL,
         evolves_to_id INTEGER,
         species_id  INTEGER,
@@ -171,7 +171,8 @@ def init_db():
         item        TEXT,
         happiness   INTEGER,
         time_of_day TEXT,
-        held_item   TEXT
+        held_item   TEXT,
+        PRIMARY KEY (chain_id, species_id)
     );
 
     CREATE TABLE IF NOT EXISTS stats (

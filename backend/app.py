@@ -163,24 +163,36 @@ def get_pokemon(pokemon_id: int):
         ).fetchall()
     ]
 
-    # Moves (level-up)
-    p["moves_levelup"] = [
+    # Moves grouped by version_group
+    all_moves = [
         dict(m)
         for m in conn.execute(
             """SELECT m.id, m.identifier, m.name_en, m.name_zh,
-                      m.type_id, m.power, m.accuracy, m.damage_class,
-                      pm.level_learned
+                      m.type_id, m.power, m.accuracy, m.pp, m.damage_class,
+                      m.short_effect_en, m.short_effect_zh,
+                      pm.learn_method, pm.level_learned, pm.version_group
                FROM pokemon_moves pm JOIN moves m ON m.id = pm.move_id
-               WHERE pm.pokemon_id = ? AND pm.learn_method = 'level-up'
-               ORDER BY pm.level_learned LIMIT 50""",
+               WHERE pm.pokemon_id = ?
+               ORDER BY pm.version_group, pm.learn_method, pm.level_learned""",
             (pokemon_id,),
         ).fetchall()
     ]
+    moves_by_version = {}
+    for m in all_moves:
+        vg = m.pop("version_group")
+        if vg not in moves_by_version:
+            moves_by_version[vg] = {}
+        method = m.pop("learn_method")
+        if method not in moves_by_version[vg]:
+            moves_by_version[vg][method] = []
+        moves_by_version[vg][method].append(m)
+    p["moves_by_version"] = moves_by_version
 
-    # Evolution chain
+    # Evolution chain - direct lookup by species_id
+    sid = p.get("species_id") or pokemon_id
     chain_row = conn.execute(
-        "SELECT DISTINCT chain_id FROM evolution_chains WHERE pokemon_id = ? OR evolves_to_id = ? LIMIT 1",
-        (pokemon_id, pokemon_id),
+        "SELECT DISTINCT chain_id FROM evolution_chains WHERE species_id = ? LIMIT 1",
+        (sid,),
     ).fetchone()
 
     p["evolutions"] = []
@@ -193,11 +205,24 @@ def get_pokemon(pokemon_id: int):
                FROM evolution_chains ec
                LEFT JOIN pokemon p2 ON p2.species_id = ec.species_id
                LEFT JOIN pokemon_names pn2 ON pn2.pokemon_id = p2.id AND pn2.language = 'zh-hans'
-               WHERE ec.chain_id = ?
-               ORDER BY ec.id""",
+               WHERE ec.chain_id = ?""",
             (chain_id,),
         ).fetchall()
-        p["evolutions"] = [dict(e) for e in evos]
+        evo_list = [dict(e) for e in evos]
+        # Topological sort: build chain from base → final
+        by_sid = {e["species_id"]: e for e in evo_list}
+        base = [e for e in evo_list if not e.get("evolves_from_species_id") or e["evolves_from_species_id"] not in by_sid]
+        if base:
+            ordered = [base[0]]
+            while True:
+                cur_sid = ordered[-1]["species_id"]
+                nxt = [e for e in evo_list if e.get("evolves_from_species_id") == cur_sid and e not in ordered]
+                if not nxt:
+                    break
+                ordered.extend(nxt)
+            p["evolutions"] = ordered
+        else:
+            p["evolutions"] = evo_list
 
     conn.close()
     return p

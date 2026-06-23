@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import SearchFilters from './components/SearchFilters'
 import PokemonGrid from './components/PokemonGrid'
@@ -12,26 +13,17 @@ const GEN_NAMES = {
   7: '第七世代 · 阿罗拉', 8: '第八世代 · 伽勒尔', 9: '第九世代 · 帕底亚',
 }
 
-export default function App() {
-  const [view, setView] = useState('list') // 'list' | 'types'
+function ListPage({ types, genNames }) {
+  const navigate = useNavigate()
   const [pokemon, setPokemon] = useState([])
   const [total, setTotal] = useState(0)
-  const [types, setTypes] = useState([])
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [genFilter, setGenFilter] = useState('')
   const [offset, setOffset] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [detail, setDetail] = useState(null)
-  const [detailLoading, setDetailLoading] = useState(false)
   const limit = 36
 
-  // Load types on mount
-  useEffect(() => {
-    fetchTypes().then(setTypes)
-  }, [])
-
-  // Load pokemon list
   const loadPokemon = useCallback(async () => {
     setLoading(true)
     try {
@@ -45,82 +37,91 @@ export default function App() {
     }
   }, [search, typeFilter, genFilter, offset])
 
+  useEffect(() => { loadPokemon() }, [loadPokemon])
+
+  const handleSearch = (val) => { setSearch(val); setOffset(0) }
+  const handleTypeFilter = (val) => { setTypeFilter(val); setOffset(0) }
+  const handleGenFilter = (val) => { setGenFilter(val); setOffset(0) }
+
+  return (
+    <>
+      <SearchFilters
+        search={search}
+        types={types}
+        typeFilter={typeFilter}
+        genFilter={genFilter}
+        total={total}
+        onSearch={handleSearch}
+        onTypeFilter={handleTypeFilter}
+        onGenFilter={handleGenFilter}
+        genNames={genNames}
+      />
+      <PokemonGrid
+        pokemon={pokemon}
+        loading={loading}
+        total={total}
+        offset={offset}
+        limit={limit}
+        onPageChange={setOffset}
+        onCardClick={(id) => navigate(`/pokemon/${id}`)}
+      />
+    </>
+  )
+}
+
+function DetailPage({ types }) {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const [pokemon, setPokemon] = useState(null)
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
-    if (view === 'list') loadPokemon()
-  }, [view, loadPokemon])
+    setLoading(true)
+    setPokemon(null)
+    fetchPokemonDetail(id).then(data => {
+      setPokemon(data)
+      setLoading(false)
+    })
+  }, [id])
 
-  // Open detail
-  const openDetail = async (id) => {
-    setDetailLoading(true)
-    try {
-      const data = await fetchPokemonDetail(id)
-      setDetail(data)
-    } finally {
-      setDetailLoading(false)
-    }
-  }
+  return (
+    <PokemonDetail
+      pokemon={pokemon}
+      types={types}
+      loading={loading}
+      onClose={() => navigate('/')}
+      onPokemonClick={(newId) => navigate(`/pokemon/${newId}`)}
+    />
+  )
+}
 
-  // Search handler (debounced)
-  const handleSearch = (val) => {
-    setSearch(val)
-    setOffset(0)
-  }
+function TypesPage({ types }) {
+  return <TypeChart types={types} />
+}
 
-  const handleTypeFilter = (val) => {
-    setTypeFilter(val)
-    setOffset(0)
-  }
+export default function App() {
+  const [types, setTypes] = useState([])
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  const handleGenFilter = (val) => {
-    setGenFilter(val)
-    setOffset(0)
-  }
+  useEffect(() => {
+    fetchTypes().then(setTypes)
+  }, [])
 
-  const goHome = () => {
-    setView('list')
-    setOffset(0)
-  }
+  const view = location.pathname === '/types' ? 'types' : 'list'
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header view={view} onHome={goHome} onTypes={() => setView('types')} />
-
-      {view === 'list' && (
-        <>
-          <SearchFilters
-            search={search}
-            types={types}
-            typeFilter={typeFilter}
-            genFilter={genFilter}
-            total={total}
-            onSearch={handleSearch}
-            onTypeFilter={handleTypeFilter}
-            onGenFilter={handleGenFilter}
-            genNames={GEN_NAMES}
-          />
-          <PokemonGrid
-            pokemon={pokemon}
-            loading={loading}
-            total={total}
-            offset={offset}
-            limit={limit}
-            onPageChange={setOffset}
-            onCardClick={openDetail}
-          />
-        </>
-      )}
-
-      {view === 'types' && <TypeChart types={types} />}
-
-      {detail && (
-        <PokemonDetail
-          pokemon={detail}
-          types={types}
-          loading={detailLoading}
-          onClose={() => setDetail(null)}
-          onPokemonClick={(id) => openDetail(id)}
-        />
-      )}
+      <Header
+        view={view}
+        onHome={() => navigate('/')}
+        onTypes={() => navigate('/types')}
+      />
+      <Routes>
+        <Route path="/" element={<ListPage types={types} genNames={GEN_NAMES} />} />
+        <Route path="/pokemon/:id" element={<DetailPage types={types} />} />
+        <Route path="/types" element={<TypesPage types={types} />} />
+      </Routes>
     </div>
   )
 }

@@ -381,7 +381,7 @@ class PokeAPIFetcher:
                     (pokemon_id, stat_name, s["base_stat"], s["effort"]),
                 )
 
-            # Moves (latest version group only to avoid bloat)
+            # Moves (all version groups)
             seen_moves = set()
             for m in poke_data.get("moves", []):
                 mid = int(m["move"]["url"].rstrip("/").split("/")[-1])
@@ -389,7 +389,7 @@ class PokeAPIFetcher:
                     method = vd["move_learn_method"]["name"]
                     level = vd["level_learned_at"]
                     vg = vd["version_group"]["name"]
-                    key = (mid, method, level)
+                    key = (mid, method, level, vg)  # include version_group in dedup key
                     if key not in seen_moves:
                         seen_moves.add(key)
                         self.conn.execute(

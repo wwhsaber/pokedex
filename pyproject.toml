@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pokedex"
+version = "1.0.0"
+description = "Complete Pokédex with bilingual (Chinese/English) support"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "aiohttp>=3.9",
+    "aiosqlite>=0.19",
+    "rich>=13.0",
+]
+
+[project.scripts]
+pokedex = "pokedex.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

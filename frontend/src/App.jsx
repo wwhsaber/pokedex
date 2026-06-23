@@ -111,7 +111,7 @@ export default function App() {
   const view = location.pathname === '/types' ? 'types' : 'list'
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF7F0] text-stone-900">
       <Header
         view={view}
         onHome={() => navigate('/')}
